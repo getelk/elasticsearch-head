@@ -1,22 +1,13 @@
-FROM gliderlabs/alpine:latest 
+FROM getelk/alpine-nginx:latest
 
-RUN \
-  apk update && \
-  apk add wget && \
-  apk add nodejs && \
-  apk add nginx
+RUN apk add --update wget
 
-RUN mkdir /tmp/nginx
-RUN mkdir -p /usr/share/nginx
-
-RUN wget --no-check-certificate https://github.com/mobz/elasticsearch-head/archive/master.tar.gz -O /tmp/elasticsearch-head.tar.gz
-RUN tar zxvf /tmp/elasticsearch-head.tar.gz -C /tmp && mv /tmp/elasticsearch-head-master /usr/share/nginx/html && rm -rf /tmp/elasticsearch-head.tar.gz
+RUN rm -r /usr/share/nginx/html
+RUN wget --no-check-certificate https://github.com/mobz/elasticsearch-head/archive/master.tar.gz -O /tmp/elasticsearch-head.tar.gz && \
+  tar zxf /tmp/elasticsearch-head.tar.gz -C /tmp && \
+  rm -rf /tmp/elasticsearch-head.tar.gz
+RUN ln -sf /tmp/elasticsearch-head-master /usr/share/nginx/html
 
 WORKDIR /usr/share/nginx/html
-RUN npm install
 
-ADD ./files/nginx.conf /etc/nginx/nginx.conf
-
-EXPOSE 9100
-
-CMD ["nginx", "-g", "daemon off; error_log stderr info;"]
+CMD ["nginx", "-g", "daemon off;"]
